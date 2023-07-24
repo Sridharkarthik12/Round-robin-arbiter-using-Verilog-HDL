@@ -34,10 +34,10 @@ reg             lgnt0     ;  // LATCHED GRANTS
 reg             lgnt1     ;
 reg             lgnt2     ;
 reg             lgnt3     ;
-reg             mask_enable   ;
+
 reg             lmask0    ;
 reg             lmask1    ;
-reg             edg    ;
+
 
 
 //--//
@@ -79,9 +79,7 @@ always @ (posedge clk)
         | ( lcomreq & lgnt3);
 end 
 
- //BEGIN SIGNAL
-  
-  assign beg = (req3 | req2 | req1 | req0) & ~lcomreq;  
+
   
 
  // comreq logic (BUS STATUS)
@@ -91,14 +89,6 @@ assign lcomreq = ( req3 & lgnt3 )
                 | ( req1 & lgnt1 )
                 | ( req0 & lgnt0 );
 
-
-//state machine
-
-always@(posedge clk)
-begin
-mask_enable <=(beg & ~(edg) & ~(mask_enable));
-edg <= (beg & ~(edg) & mask_enable) || (beg & edg & ~(mask_enable));
-end
 
 
 // Encoder logic
@@ -115,16 +105,12 @@ if( rst )
     lmask1 <= 0;
     lmask0 <= 0;
   end 
- else if(mask_enable) 
-    begin
-      lmask1 <= lgnt[1];
-      lmask0 <= lgnt[0];
-    end 
- else 
-    begin
-      lmask1 <= lmask1;
-      lmask0 <= lmask0;
-    end 
+else 
+   begin
+     lmask1 <= lgnt[1];
+     lmask0 <= lgnt[0];
+   end 
+
 
   
 assign comreq = lcomreq;
@@ -139,6 +125,3 @@ assign gnt0   = lgnt0;
 
 
 endmodule
-
-
-
